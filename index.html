@@ -1,0 +1,139 @@
+     <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Video con música y mensajes</title>
+  <style>
+    html, body {
+      margin: 0; 
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: black;
+      overflow: hidden;
+      font-family: 'Arial Black', Arial, sans-serif;
+    }
+
+    /* Texto intro "OTRAS?" */
+    #intro {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    #intro h1 {
+      color: #cc0000;
+      font-size: 6rem;
+      user-select: none;
+      text-shadow:
+        0 0 10px #cc0000,
+        0 0 20px #990000;
+      margin: 0;
+    }
+
+    /* Video a pantalla completa */
+    video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      background: black;
+      display: none;
+      z-index: 1;
+    }
+
+    /* Textos que aparecen sobre el video */
+    .texto-superior, .texto-inferior {
+      position: fixed;
+      width: 100%;
+      text-align: center;
+      user-select: none;
+      display: none;
+      z-index: 20;
+      font-family: 'Arial Black', Arial, sans-serif;
+      text-shadow: 0 0 10px black;
+    }
+
+    .texto-superior {
+      top: 5%;
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: #cc0000;
+      text-shadow:
+        0 0 5px #cc0000,
+        0 0 10px #cc0000,
+        0 0 15px #990000;
+    }
+
+    .texto-inferior {
+      bottom: 10%;
+      font-size: 2.5rem;
+      color: white;
+      text-shadow:
+        0 0 5px #ff99cc,
+        0 0 10px #ff66bb,
+        0 0 20px #ff3399;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Texto inicial -->
+  <div id="intro">
+    <h1>OTRAS?</h1>
+  </div>
+
+  <!-- Video fondo -->
+  <video id="video" muted playsinline preload="auto" loop>
+    <source src="video2.mp4" type="video/mp4" />
+    Tu navegador no soporta video HTML5.
+  </video>
+
+  <!-- Música -->
+  <audio id="musica" src="musica2.mp3" loop></audio>
+
+  <!-- Textos sobre el video -->
+  <div class="texto-superior">NO GRACIAS, MI NOVIA LE GANA A TODAS🥰</div>
+  <div class="texto-inferior">¡Feliz cumple mes, mi amor! 💕</div>
+
+  <script>
+    window.addEventListener('load', () => {
+      const intro = document.getElementById('intro');
+      const video = document.getElementById('video');
+      const musica = document.getElementById('musica');
+      const textoSuperior = document.querySelector('.texto-superior');
+      const textoInferior = document.querySelector('.texto-inferior');
+
+      // Iniciar música apenas carga la página
+      const playPromise = musica.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Si autoplay falla, intentar reproducir al primer click
+          document.body.addEventListener('click', () => {
+            musica.play();
+          }, { once: true });
+        });
+      }
+
+      // Después de 3 segundos: ocultar intro, mostrar video y textos
+      setTimeout(() => {
+        intro.style.display = 'none';
+        video.style.display = 'block';
+        textoSuperior.style.display = 'block';
+        textoInferior.style.display = 'block';
+
+        video.play().catch(e => console.log('Error reproduciendo video:', e));
+      }, 3000);
+    });
+  </script>
+
+</body>
+</html>
