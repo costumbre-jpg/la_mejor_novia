@@ -1,8 +1,8 @@
-     <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Video con música y mensajes</title>
+  <title>Video con lluvia de corazones brillantes y mensajes</title>
   <style>
     html, body {
       margin: 0; 
@@ -12,10 +12,56 @@
       background: black;
       overflow: hidden;
       font-family: 'Arial Black', Arial, sans-serif;
+      position: relative;
     }
 
-    /* Texto intro "OTRAS?" */
-    #intro {
+    /* Lluvia de corazones lilas con brillo y pulso */
+    .heart {
+      position: fixed;
+      top: -60px;
+      color: #9b59b6; /* lila intenso */
+      font-size: 3.5rem;
+      user-select: none;
+      pointer-events: none;
+      animation-name: fall, pulse;
+      animation-timing-function: linear, ease-in-out;
+      animation-iteration-count: infinite, infinite;
+      animation-duration: 6s, 2s;
+      z-index: 9999;
+      opacity: 1;
+      text-shadow:
+        0 0 8px #9b59b6,
+        0 0 15px #8e44ad,
+        0 0 20px #8e44ad,
+        0 0 30px #9b59b6;
+    }
+
+    /* Animación caída */
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Animación pulso brillo */
+    @keyframes pulse {
+      0%, 100% {
+        filter: drop-shadow(0 0 10px #9b59b6);
+        opacity: 1;
+      }
+      50% {
+        filter: drop-shadow(0 0 25px #d2a6ff);
+        opacity: 1;
+      }
+    }
+
+    /* Contenedores fijos pantalla completa */
+    #clickContainer, #intro {
       position: fixed;
       top: 0; left: 0;
       width: 100vw;
@@ -25,8 +71,38 @@
       justify-content: center;
       align-items: center;
       z-index: 10;
+      user-select: none;
+      flex-direction: column;
+      gap: 10px;
     }
 
+    /* Fondo semi-transparente para el clickContainer */
+    #clickContainer {
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 10000; /* arriba de todo */
+    }
+
+    /* Estilo para el botón tipo carta */
+    #clickContainer .click-box {
+      border: 4px solid #cc0000;
+      padding: 30px 60px;
+      border-radius: 15px;
+      color: #cc0000;
+      font-size: 6rem;
+      text-align: center;
+      text-shadow:
+        0 0 10px #cc0000,
+        0 0 20px #990000;
+      transition: background-color 0.3s ease;
+      background: rgba(0,0,0,0.6);
+      user-select: none;
+    }
+    #clickContainer:hover .click-box {
+      background-color: rgba(204, 0, 0, 0.3);
+    }
+
+    /* Texto "OTRAS?" */
     #intro h1 {
       color: #cc0000;
       font-size: 6rem;
@@ -35,6 +111,7 @@
         0 0 10px #cc0000,
         0 0 20px #990000;
       margin: 0;
+      z-index: 20;
     }
 
     /* Video a pantalla completa */
@@ -86,8 +163,13 @@
 </head>
 <body>
 
-  <!-- Texto inicial -->
-  <div id="intro">
+  <!-- Contenedor del clic y lluvia de corazones -->
+  <div id="clickContainer">
+    <div class="click-box">Haz clic aquí mi amor</div>
+  </div>
+
+  <!-- Texto inicial "OTRAS?" oculto -->
+  <div id="intro" style="display:none;">
     <h1>OTRAS?</h1>
   </div>
 
@@ -105,33 +187,74 @@
   <div class="texto-inferior">¡Feliz cumple mes, mi amor! 💕</div>
 
   <script>
+    // Función para crear corazones lilas brillantes
+    function crearCorazon() {
+      const heart = document.createElement('div');
+      heart.classList.add('heart');
+      heart.textContent = '💜';  // Emoji corazón lila
+
+      // Posición horizontal aleatoria
+      heart.style.left = Math.random() * 100 + 'vw';
+
+      // Tamaño aleatorio (3rem a 5rem)
+      const size = 3 + Math.random() * 2;
+      heart.style.fontSize = size + 'rem';
+
+      // Duración y retraso animación aleatorios (4s a 8s)
+      const duracion = 4 + Math.random() * 4;
+      heart.style.animationDuration = duracion + 's';
+      heart.style.animationDelay = (Math.random() * duracion) + 's';
+
+      document.body.appendChild(heart);
+
+      // Eliminar el corazón al terminar la animación para no saturar DOM
+      heart.addEventListener('animationend', () => {
+        heart.remove();
+      });
+    }
+
+    let lluviaInterval;
+
     window.addEventListener('load', () => {
+      const clickContainer = document.getElementById('clickContainer');
       const intro = document.getElementById('intro');
       const video = document.getElementById('video');
       const musica = document.getElementById('musica');
       const textoSuperior = document.querySelector('.texto-superior');
       const textoInferior = document.querySelector('.texto-inferior');
 
-      // Iniciar música apenas carga la página
-      const playPromise = musica.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Si autoplay falla, intentar reproducir al primer click
-          document.body.addEventListener('click', () => {
-            musica.play();
-          }, { once: true });
-        });
-      }
+      // Iniciar lluvia de corazones
+      lluviaInterval = setInterval(crearCorazon, 250);
 
-      // Después de 3 segundos: ocultar intro, mostrar video y textos
-      setTimeout(() => {
-        intro.style.display = 'none';
-        video.style.display = 'block';
-        textoSuperior.style.display = 'block';
-        textoInferior.style.display = 'block';
+      // Al hacer clic en el contenedor
+      clickContainer.addEventListener('click', () => {
+        // Parar lluvia de corazones
+        clearInterval(lluviaInterval);
 
-        video.play().catch(e => console.log('Error reproduciendo video:', e));
-      }, 3000);
+        // Quitar todos los corazones que hayan quedado
+        document.querySelectorAll('.heart').forEach(h => h.remove());
+
+        // Reproducir música
+        musica.play();
+
+        // Ocultar mensaje clic
+        clickContainer.style.display = 'none';
+
+        // Mostrar "OTRAS?" por 3 segundos
+        intro.style.display = 'flex';
+
+        setTimeout(() => {
+          intro.style.display = 'none';
+
+          // Mostrar video y textos
+          video.style.display = 'block';
+          textoSuperior.style.display = 'block';
+          textoInferior.style.display = 'block';
+
+          // Reproducir video
+          video.play().catch(e => console.log('Error reproduciendo video:', e));
+        }, 3000);
+      });
     });
   </script>
 
